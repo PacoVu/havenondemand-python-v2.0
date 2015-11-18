@@ -13,6 +13,7 @@ Version V2.0 also supports bulk input (source inputs can be an array) where an H
 OR
 
 1. To install the latest version directly from this github repo:
+##
     pip install git+https://github.com/HPE-Haven-OnDemand/havenondemand-python-v2.0
 
 
@@ -20,18 +21,19 @@ OR
 ## API References
 **Constructor**
 
-    HODClient($apiKey, $version = "v1")
+    HODClient(apiKey, version = "v1")
 
 *Description:* 
 * Creates and initializes a HODClient object.
 
 *Parameters:*
-* $apiKey: your developer apikey.
-* $version: Haven OnDemand API version. Currently it only supports version 1. Thus, the default value is "v1".
+* apiKey: your developer apikey.
+* version: Haven OnDemand API version. Currently it only supports version 1. Thus, the default value is "v1".
 
 *Example code:*
+##
     from havenondemand.hodclient import *
-    hodClient = HODClient("your-api-key")
+    hodClient = HODClient("your-apikey")
 
 ----
 **Function GetRequest**
@@ -42,14 +44,14 @@ OR
 * Sends a HTTP GET request to call an Haven OnDemand API.
 
 *Parameters:*
-* paramArr: an array {} containing key/value pair parameters to be sent to a Haven OnDemand API, where the keys are the parameters of that Haven OnDemand API.
+* paramArr: a dictionary dict() containing key/value pair parameters to be sent to a Haven OnDemand API, where the keys are the parameters of that Haven OnDemand API.
 
 >Note: 
 
 >For a parameter with its type is an array<>, the parameter must be defined in an array []. 
 >E.g.:
 ## 
-    paramArr = {}
+    paramArr = dict()
     paramArr["url"] = "http://www.cnn.com"
     paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
 
@@ -65,7 +67,7 @@ OR
 
 ## 
     # Call the Entity Extraction API synchronously to find people, places and companies from CNN and BBC websites.
-    paramArr = {}
+    paramArr = dict()
     paramArr["url"] = ["http://www.cnn.com","http://www.bbc.com"]
     paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
     
@@ -98,14 +100,14 @@ OR
 * Sends a HTTP POST request to call a Haven OnDemand API.
 
 *Parameters:*
-* paramArr: an array {} containing key/value pair parameters to be sent to a Haven OnDemand API, where the keys are the parameters of that Haven OnDemand API.
+* paramArr: a dictionary dict() containing key/value pair parameters to be sent to a Haven OnDemand API, where the keys are the parameters of that Haven OnDemand API.
 
 >Note: 
 
 >For a parameter with its type is an array<>, the parameter must be defined in an array []. 
 >E.g.:
 ## 
-    paramArr = {}
+    paramArr = dict()
     paramArr["url"] = "http://www.cnn.com"
     paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
 
@@ -162,7 +164,9 @@ OR
 *Response:* 
 * Response from the server will be returned via the provided callback function
 
-*Example code:*## 
+*Example code:*
+## 
+
     # Call GetJobResult function to get content from Haven OnDemand server.
 
     # callback function
@@ -171,7 +175,7 @@ OR
             for err in error.errors:
                 result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
         else:
-            # parse the response
+            # walk thru the response
 
     hodClient.GetJobResult(jobID, requestCompleted)
 
@@ -179,7 +183,7 @@ OR
 ## Define and implement callback functions
 
 # 
-When you call the GetRequest() or PostRequest() with the async=True, the response in a callback function will be a JSON string containing a jobID.
+When you call the GetRequest() or PostRequest() with the async=True, the response in a callback function will be a string containing a jobID.
 
     def asyncRequestCompleted(response, error):
         # check error
@@ -187,12 +191,12 @@ When you call the GetRequest() or PostRequest() with the async=True, the respons
         # call GetJobResult function with the jobID
     
 # 
-When you call the GetRequest() or PostRequest() with the async=False or call the GetJobResult(), the response in a callback function will be a JSON string containing the actual result of the service.
+When you call the GetRequest() or PostRequest() with the async=False or call the GetJobResult(), the response in a callback function will be a JSON object of the actual result from the service.
 
     def requestCompleted(response, error):
         # check error
         
-        # parse response
+        # walk thru the response
 
 ----
 ## Demo code 1: 
@@ -201,12 +205,12 @@ When you call the GetRequest() or PostRequest() with the async=False or call the
 
     from havenondemand.hodclient import *
 
-    hodClient = HODClient("your_api_key")
+    hodClient = HODClient("your-apikey")
 
     # callback function
     def requestCompleted(response,error):
         resp = ""
-	if error != None:
+        if error != None:
             for err in error.errors:
                 resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
         else:
@@ -237,7 +241,7 @@ When you call the GetRequest() or PostRequest() with the async=False or call the
 
     from havenondemand.hodclient import *
 
-    hodClient = HODClient("34a54d30-ddaa-4294-8e45-ebe07eefe55e")
+    hodClient = HODClient("your-apikey")
 
     # callback function
     def asyncRequestCompleted(jobID, error):
