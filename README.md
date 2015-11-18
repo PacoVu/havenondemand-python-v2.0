@@ -13,7 +13,7 @@ Version V2.0 also supports bulk input (source inputs can be an array) where an H
 OR
 
 1. To install the latest version directly from this github repo:
-##
+* *
     pip install git+https://github.com/HPE-Haven-OnDemand/havenondemand-python-v2.0
 
 
