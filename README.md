@@ -66,38 +66,38 @@ hodClient = HODClient("your-apikey")
 * Response from the server will be returned via the provided callback function
 
 *Example code:*
-
-## 
-    # Call the Entity Extraction API synchronously to find people, places and companies from CNN and BBC websites.
-    paramArr = dict()
-    paramArr["url"] = ["http://www.cnn.com","http://www.bbc.com"]
-    paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
+```
+# Call the Entity Extraction API synchronously to find people, places and companies from CNN and BBC websites.
+paramArr = dict()
+paramArr["url"] = ["http://www.cnn.com","http://www.bbc.com"]
+paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
     
-    paramArr["unique_entities" = "true"
+paramArr["unique_entities"] = "true"
     
-    hodClient.GetRequest(paramArr, HODApps.ENTITY_EXTRACTION, False, requestCompleted)
+hodClient.GetRequest(paramArr, HODApps.ENTITY_EXTRACTION, False, requestCompleted)
 
-    # callback function
-    def requestCompleted(response,error):
-        if error != None:
-            for err in error.errors:
-                result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
-        else:
-            entities = response["entities"]
-            text = ""
-            for entity in entities:
-                if entity["type"] == "companies_eng":
-                    text += "Company name: " + entity["normalized_text"] + "\n"
-                elif entity["type"] == "places_eng":
-                    text += "Place name: " + entity["normalized_text"] + "\n"
-                else:
-                    text += "People name: " + entity["normalized_text"] + "\n"
-            print text
-----
+# callback function
+def requestCompleted(response,error):
+    if error != None:
+        for err in error.errors:
+            result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
+    else:
+        entities = response["entities"]
+        text = ""
+        for entity in entities:
+            if entity["type"] == "companies_eng":
+                text += "Company name: " + entity["normalized_text"] + "\n"
+            elif entity["type"] == "places_eng":
+                text += "Place name: " + entity["normalized_text"] + "\n"
+            else:
+                text += "People name: " + entity["normalized_text"] + "\n"
+        print text
+```
+
 **Function PostRequest**
- 
-    PostRequest(paramArr, hodApp, async, callback)
-
+``` 
+PostRequest(paramArr, hodApp, async, callback)
+```
 *Description:* 
 * Sends a HTTP POST request to call a Haven OnDemand API.
 
@@ -108,11 +108,11 @@ hodClient = HODClient("your-apikey")
 
 >For a parameter with its type is an array<>, the parameter must be defined in an array []. 
 >E.g.:
-## 
-    paramArr = dict()
-    paramArr["url"] = "http://www.cnn.com"
-    paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
-
+``` 
+paramArr = dict()
+paramArr["url"] = "http://www.cnn.com"
+paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
+```
 
 * hodApp: a string to identify an Haven OnDemand API. E.g. "ocrdocument". Current supported apps are listed in the HODApps class.
 * async: True | False. Specifies API call as Asynchronous or Synchronous.
@@ -123,40 +123,40 @@ hodClient = HODClient("your-apikey")
 
 *Example code:*
 
-## 
-    # Call PostRequestion function asynchronously.
+```
+# Call PostRequestion function asynchronously.
 
-    # callback function
-    def asyncRequestCompleted(jobID, error):
-        if error != None:
-            for err in error.errors:
-                result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
-                print result
-        else:
-            hodClient.GetJobResult(jobID, requestCompleted)
+# callback function
+def asyncRequestCompleted(jobID, error):
+    if error != None:
+        for err in error.errors:
+            result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
+            print result
+    else:
+        hodClient.GetJobResult(jobID, requestCompleted)
 
-    # callback function
-    def requestCompleted(response, error):
-        if error != None:
-            for err in error.errors:
-                result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
-        else:
-            texts = response["text_block"]
-            for text in texts:
-                print "Recognized text: " + text["text"]
+# callback function
+def requestCompleted(response, error):
+    if error != None:
+        for err in error.errors:
+            result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
+    else:
+        texts = response["text_block"]
+        for text in texts:
+            print "Recognized text: " + text["text"]
     
-    paramArr = {}
-    paramArr["file"] = "full/path/filename.jpg",
-    paramArr["mode"] = "document_photo"
+paramArr = {}
+paramArr["file"] = "full/path/filename.jpg",
+paramArr["mode"] = "document_photo"
 
-    # Call the OCR Document API asynchronously to scan text from an image file.
-    hodClient.PostRequest(paramArr, HODApps.OCR_DOCUMENT, True, asyncRequestCompleted)
-    
-----
+# Call the OCR Document API asynchronously to scan text from an image file.
+hodClient.PostRequest(paramArr, HODApps.OCR_DOCUMENT, True, asyncRequestCompleted)
+```    
+
 **Function GetJobResult**
-
-    GetJobResult(jobID, callback)
-
+```
+GetJobResult(jobID, callback)
+```
 *Description:*
 * Sends a request to Haven OnDemand to retrieve content identified by a job ID.
 
@@ -167,40 +167,39 @@ hodClient = HODClient("your-apikey")
 * Response from the server will be returned via the provided callback function
 
 *Example code:*
-## 
+``` 
+# Call GetJobResult function to get content from Haven OnDemand server.
 
-    # Call GetJobResult function to get content from Haven OnDemand server.
+# callback function
+def requestCompleted(response, error):
+    if error != None:
+        for err in error.errors:
+            result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
+    else:
+        # walk thru the response
 
-    # callback function
-    def requestCompleted(response, error):
-        if error != None:
-            for err in error.errors:
-                result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
-        else:
-            # walk thru the response
+hodClient.GetJobResult(jobID, requestCompleted)
+```
 
-    hodClient.GetJobResult(jobID, requestCompleted)
-
-----
 ## Define and implement callback functions
 
 # 
 When you call the GetRequest() or PostRequest() with the async=True, the response in a callback function will be a string containing a jobID.
+```
+def asyncRequestCompleted(response, error):
+    # check error
 
-    def asyncRequestCompleted(response, error):
-        # check error
-
-        # call GetJobResult function with the jobID
-    
+    # call GetJobResult function with the jobID
+```    
 # 
 When you call the GetRequest() or PostRequest() with the async=False or call the GetJobResult(), the response in a callback function will be a JSON object of the actual result from the service.
-
-    def requestCompleted(response, error):
-        # check error
+```
+def requestCompleted(response, error):
+    # check error
         
-        # walk thru the response
+    # walk thru the response
+```
 
-----
 ## Demo code 1: 
 
 **Call the Entity Extraction API to extract people and places from cnn.com website with a synchronous GET request**
