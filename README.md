@@ -22,7 +22,7 @@ pip install git+https://github.com/HPE-Haven-OnDemand/havenondemand-python-v2.0
 ## API References
 **Constructor**
 ```
-HODClient(apiKey, version = "v1")
+HODClient("apiKey", version = "v1")
 ```
 
 *Description:* 
@@ -162,6 +162,7 @@ GetJobResult(jobID, callback)
 
 *Parameter:*
 * jobID: the job ID returned from an Haven OnDemand API upon an asynchronous call.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server.
 
 *Response:* 
 * Response from the server will be returned via the provided callback function
@@ -203,74 +204,70 @@ def requestCompleted(response, error):
 ## Demo code 1: 
 
 **Call the Entity Extraction API to extract people and places from cnn.com website with a synchronous GET request**
+```
+from havenondemand.hodclient import *
 
-    from havenondemand.hodclient import *
+hodClient = HODClient("your-apikey")
 
-    hodClient = HODClient("your-apikey")
+# callback function
+def requestCompleted(response,error):
+    resp = ""
+    if error != None:
+        for err in error.errors:
+            resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+    else:
+        entities = response["entities"]
+        for entity in entities:
+            if entity["type"] == "companies_eng":
+                resp += "Company name: " + entity["normalized_text"] + "\n"
+            elif entity["type"] == "places_eng":
+                resp += "Place name: " + entity["normalized_text"] + "\n"
+            else:
+                resp += "People name: " + entity["normalized_text"] + "\n"
+    print resp
 
-    # callback function
-    def requestCompleted(response,error):
-        resp = ""
-        if error != None:
-            for err in error.errors:
-                resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
-        else:
-            entities = response["entities"]
-            for entity in entities:
-                if entity["type"] == "companies_eng":
-                    resp += "Company name: " + entity["normalized_text"] + "\n"
-                elif entity["type"] == "places_eng":
-                    resp += "Place name: " + entity["normalized_text"] + "\n"
-                else:
-                    resp += "People name: " + entity["normalized_text"] + "\n"
-        print resp
+paramArr = {}
+paramArr["url"] = "http://www.cnn.com"
+paramArr["unique_entities"] = "true"
+paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
 
-
-    paramArr = {}
-    paramArr["url"] = "http://www.cnn.com"
-    paramArr["unique_entities"] = "true"
-    paramArr["entity_type"] = ["people_eng","places_eng","companies_eng"]
-
-
-    hodClient.GetRequest(paramArr, HODApps.ENTITY_EXTRACTION, False, requestCompleted)
-
-----
+hodClient.GetRequest(paramArr, HODApps.ENTITY_EXTRACTION, False, requestCompleted)
+```
 
 ## Demo code 2:
  
 **Call the OCR Document API to scan text from an image with an asynchronous POST request**
+```
+from havenondemand.hodclient import *
 
-    from havenondemand.hodclient import *
+hodClient = HODClient("your-apikey")
 
-    hodClient = HODClient("your-apikey")
+# callback function
+def asyncRequestCompleted(jobID, error):
+    if error != None:
+        for err in error.errors:
+            result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
+            print result
+    else:
+        hodClient.GetJobResult(jobID, requestCompleted)
 
-    # callback function
-    def asyncRequestCompleted(jobID, error):
-        if error != None:
-            for err in error.errors:
-                result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
-                print result
-        else:
-            hodClient.GetJobResult(jobID, requestCompleted)
+# callback function
+def requestCompleted(response, error):
+    resp = ""
+    if error != None:
+        for err in error.errors:
+            resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+    else:
+        texts = response["text_block"]
+        for text in texts:
+            resp += "Recognized text: " + text["text"]
+    print resp
 
-    # callback function
-    def requestCompleted(response, error):
-        resp = ""
-        if error != None:
-            for err in error.errors:
-                resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
-        else:
-            texts = response["text_block"]
-            for text in texts:
-                resp += "Recognized text: " + text["text"]
-        print resp
+paramArr = {}
+paramArr["file"] = "testdata/review.jpg"
+paramArr["mode"] = "document_photo"
 
-    paramArr = {}
-    paramArr["file"] = "testdata/review.jpg"
-    paramArr["mode"] = "document_photo"
-
-    hodClient.PostRequest(paramArr, HODApps.OCR_DOCUMENT, async=True, callback=asyncRequestCompleted)
-
-----
+hodClient.PostRequest(paramArr, HODApps.OCR_DOCUMENT, async=True, callback=asyncRequestCompleted)
+```
 ## License
 Licensed under the MIT License.
