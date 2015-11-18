@@ -14,15 +14,16 @@ Version V2.0 also supports bulk input (source inputs can be an array) where an H
 *OR*
 
 1. To install the latest version directly from this github repo:
-
-    pip install git+https://github.com/HPE-Haven-OnDemand/havenondemand-python-v2.0
-
+```
+pip install git+https://github.com/HPE-Haven-OnDemand/havenondemand-python-v2.0
+```
 
 ----
 ## API References
 **Constructor**
-
-    HODClient(apiKey, version = "v1")
+```
+HODClient(apiKey, version = "v1")
+```
 
 *Description:* 
 * Creates and initializes a HODClient object.
@@ -32,10 +33,10 @@ Version V2.0 also supports bulk input (source inputs can be an array) where an H
 * version: Haven OnDemand API version. Currently it only supports version 1. Thus, the default value is "v1".
 
 *Example code:*
-##
-    from havenondemand.hodclient import *
-    hodClient = HODClient("your-apikey")
-
+```
+from havenondemand.hodclient import *
+hodClient = HODClient("your-apikey")
+```
 ----
 **Function GetRequest**
 
