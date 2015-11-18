@@ -10,10 +10,11 @@ Version V2.0 also supports bulk input (source inputs can be an array) where an H
 ## Integrate HODClient into Python project
 1. Download the HODClient library for Python.
 2. Unzip and copy the whole havenondemand folder to your project folder.
-OR
+
+*OR*
 
 1. To install the latest version directly from this github repo:
-* *
+
     pip install git+https://github.com/HPE-Haven-OnDemand/havenondemand-python-v2.0
 
 
