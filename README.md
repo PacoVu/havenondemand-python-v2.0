@@ -128,7 +128,7 @@ params["entity_type"] = ["people_eng","places_eng","companies_eng"]
 * hodApp: a string to identify an Haven OnDemand API. E.g. "ocrdocument". Current supported apps are listed in the HODApps class.
 * async: True | False. Specifies API call as Asynchronous or Synchronous.
 * callback: the name of a callback function, which the HODClient will call back and pass the response from server.
-* **kwargs: optional parameter. A dictionary that holds any custom paramters. The parameter **kwargs will be sent back thru the provided callback function.
+* \*\*kwargs: optional parameter. A dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
 * Response from the server will be returned via the provided $callback function
@@ -145,7 +145,7 @@ def asyncRequestCompleted(jobID, error, **kwargs):
             result = "Error code: %d \nReason: %s \nDetails: %s" % (err.error,err.reason, err.detail)
             print result
     elif jobID != None:
-        hodClient.get_job_result(jobID, requestCompleted)
+        hodClient.get_job_result(jobID, requestCompleted, **kwargs)
 
 # callback function
 def requestCompleted(response, error, **kwargs):
