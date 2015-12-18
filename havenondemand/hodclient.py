@@ -33,9 +33,9 @@ class HODErrors:
 		self.errors = []
 
 class HODClient(object):
-	hodEndPoint = "https://api.havenondemand.com/1/api/"
-	hodJobResult = "https://api.havenondemand.com/1/job/result/"
-	hodJobStatus = "https://api.havenondemand.com/1/job/status/"
+	hodEndPoint = "http://api.havenondemand.com/1/api/"
+	hodJobResult = "http://api.havenondemand.com/1/job/result/"
+	hodJobStatus = "http://api.havenondemand.com/1/job/status/"
 	apiVersion = "v1"
 	apiKey = None
 	proxy = None
@@ -46,8 +46,10 @@ class HODClient(object):
 		self.apiKey = apikey
 		self.proxy = proxy
 
+	def get_last_error(self):
+		return self.errorsList;
 
-	def get_job_result(self, jobId, callback, **kwargs):
+	def get_job_result(self, jobId, callback=None, **kwargs):
 		queryStr = "%s%s?apikey=%s" % (self.hodJobResult, jobId, self.apiKey)
 		try:
 			response = requests.get(queryStr, verify=False, timeout=600)
@@ -59,34 +61,58 @@ class HODClient(object):
 				try:
 					jsonObj = json.loads(response.text)
 					self.__parseHODResponse(jsonObj)
-					callback(None, self.errorsList, **kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList, **kwargs)
 				except ValueError, e:
 					self.__createErrorObject(response.status_code, response.reason, response.text, jobId)
-					callback(None, self.errorsList,**kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList,**kwargs)
 			else:
 				try:
 					jsonObj = json.loads(response.text)
 					resp = self.__parseHODResponse(jsonObj)
 					# these statuses won't happen in get result request. But the code is for just in case.
 					if resp == "queued" or resp == "inprogress" or resp == "errors":
-						callback(None, self.errorsList, **kwargs)
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList, **kwargs)
 					else:
-						callback(resp, None, **kwargs)
+						if callback is None:
+							return resp
+						else:
+							callback(resp, None, **kwargs)
 				except ValueError, e:
 					self.__createErrorObject(ErrorCode.INVALID_HOD_RESPONSE, "Response is not a json string.", response.text, jobId)
-					callback(None, self.errorsList,**kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList,**kwargs)
 		except requests.Timeout:
 			self.__createErrorObject(ErrorCode.TIMEOUT, "timeout", "", jobId)
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 		except requests.HTTPError:
 			self.__createErrorObject(ErrorCode.HTTP_ERROR, "HTTP error", "", jobId)
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 		except ConnectionError:
 			self.__createErrorObject(ErrorCode.CONNECTION_ERROR, "Connection error", "", jobId)
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 
 
-	def get_job_status(self, jobId, callback, **kwargs):
+	def get_job_status(self, jobId, callback=None, **kwargs):
 		queryStr = "%s%s?apikey=%s" % (self.hodJobStatus, jobId, self.apiKey)
 		try:
 			response = requests.get(queryStr, verify=False, timeout=600)
@@ -98,33 +124,57 @@ class HODClient(object):
 				try:
 					jsonObj = json.loads(response.text)
 					self.__parseHODResponse(jsonObj)
-					callback(None, self.errorsList, **kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList, **kwargs)
 				except ValueError, e:
 					self.__createErrorObject(response.status_code, response.reason, response.text, jobId)
-					callback(None, self.errorsList,**kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList,**kwargs)
 			else:
 				try:
 					jsonObj = json.loads(response.text)
 					resp = self.__parseHODResponse(jsonObj)
 					if resp == "queued" or resp == "inprogress" or resp == "errors":
-						callback(None, self.errorsList, **kwargs)
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList, **kwargs)
 					else:
-						callback(resp, None, **kwargs)
+						if callback is None:
+							return resp
+						else:
+							callback(resp, None, **kwargs)
 				except ValueError, e:
 					self.__createErrorObject(ErrorCode.INVALID_HOD_RESPONSE, "Response is not a json string.", response.text, jobId)
-					callback(None, self.errorsList,**kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList,**kwargs)
 		except requests.Timeout:
 			self.__createErrorObject(ErrorCode.TIMEOUT, "timeout", "", jobId)
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 		except requests.HTTPError:
 			self.__createErrorObject(ErrorCode.HTTP_ERROR, "HTTP error", "", jobId)
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 		except ConnectionError:
 			self.__createErrorObject(ErrorCode.CONNECTION_ERROR, "Connection error", "", jobId)
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 
 
-	def post_request(self, params, hodApp, async, callback,**kwargs):
+	def post_request(self, params, hodApp, async, callback=None,**kwargs):
 		queryStr = self.hodEndPoint
 		if async is True:
 			queryStr += "async/%s/%s" % (hodApp, self.apiVersion)
@@ -142,8 +192,11 @@ class HODClient(object):
 							files.append((key, f))
 						except IOError:
 							self.__createErrorObject(ErrorCode.IO_ERROR, "File not found")
-							callback(None, self.errorsList, **kwargs)
-							return
+							if callback == None:
+								return None
+							else:
+								callback(None, self.errorsList, **kwargs)
+								return
 				else:
 					for vv in value:
 						data.append((key, vv))
@@ -154,8 +207,11 @@ class HODClient(object):
 						files = {key: f}
 					except IOError:
 						self.__createErrorObject(ErrorCode.IO_ERROR, "File not found")
-						callback(None, self.errorsList, **kwargs)
-						return
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList, **kwargs)
+							return
 				else:
 					data.append((key, value))
 		try:
@@ -168,45 +224,78 @@ class HODClient(object):
 				try:
 					jsonObj = json.loads(response.text)
 					self.__parseHODResponse(jsonObj)
-					callback(None, self.errorsList, **kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList, **kwargs)
 				except ValueError, e:
 					self.__createErrorObject(response.status_code, response.reason)
-					callback(None, self.errorsList,**kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList,**kwargs)
 			else:
 				if async is False:
 					try:
 						jsonObj = json.loads(response.text)
 						resp = self.__parseHODResponse(jsonObj)
 						if resp == "queued" or resp == "inprogress" or resp == "errors":
-							callback(None, self.errorsList,**kwargs)
+							if callback is None:
+								return None
+							else:
+								callback(None, self.errorsList,**kwargs)
 						else:
-							callback(resp, None,**kwargs)
+							if callback is None:
+								return resp
+							else:
+								callback(resp, None,**kwargs)
 					except ValueError, e:
 						self.__createErrorObject(ErrorCode.INVALID_HOD_RESPONSE, "Response is not a json string.", response.text)
-						callback(None, self.errorsList,**kwargs)
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList,**kwargs)
 				else:
 					try:
 						jsonObj = json.loads(response.text)
 						jobID = self.__parseJobId(jsonObj)
 						if jobID == "errors":
-							callback(None, self.errorsList,**kwargs)
+							if callback is None:
+								return None
+							else:
+								callback(None, self.errorsList,**kwargs)
 						else:
-							callback(jobID, None,**kwargs)
+							if callback is None:
+								return jobID
+							else:
+								callback(jobID, None,**kwargs)
 					except ValueError, e:
 						self.__createErrorObject(ErrorCode.INVALID_HOD_RESPONSE, "Response is not a json string.", response.text)
-						callback(None, self.errorsList,**kwargs)
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList,**kwargs)
 		except requests.Timeout:
 			self.__createErrorObject(ErrorCode.TIMEOUT, "Request timeout")
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 		except requests.HTTPError:
 			self.__createErrorObject(ErrorCode.HTTP_ERROR, "HTTP error")
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 		except requests.ConnectionError:
 			self.__createErrorObject(ErrorCode.CONNECTION_ERROR, "Connection error")
-			callback(None, self.errorsList, **kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList, **kwargs)
 
 
-	def get_request(self, params, hodApp, async, callback, **kwargs):
+	def get_request(self, params, hodApp, async, callback=None, **kwargs):
 		queryStr = self.hodEndPoint
 		if async is True:
 			queryStr += "async/%s/%s" % (hodApp, self.apiVersion)
@@ -216,14 +305,16 @@ class HODClient(object):
 		for key, value in params.items():
 			if key == "file":
 				self.__createErrorObject(ErrorCode.INVALID_PARAM, "file resource must be uploaded with PostRequest function")
-				callback(None, self.errorsList, **kwargs)
-				return
+				if callback is None:
+					return None
+				else:
+					callback(None, self.errorsList, **kwargs)
+					return
 			if isinstance(value, list):
 				for vv in value:
 					queryStr += "&%s=%s" % (key, vv)
 			else:
 				queryStr += "&%s=%s" % (key, value)
-
 		try:
 			response = requests.get(queryStr, verify=False, timeout=600)
 			if response.status_code == 429:
@@ -234,42 +325,75 @@ class HODClient(object):
 				try:
 					jsonObj = json.loads(response.text)
 					self.__parseHODResponse(jsonObj)
-					callback(None, self.errorsList, **kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList, **kwargs)
 				except ValueError, e:
 					self.__createErrorObject(response.status_code, response.reason)
-					callback(None, self.errorsList,**kwargs)
+					if callback is None:
+						return None
+					else:
+						callback(None, self.errorsList,**kwargs)
 			else:
 				if async is False:
 					try:
 						jsonObj = json.loads(response.text)
 						resp = self.__parseHODResponse(jsonObj)
 						if resp == "queued" or resp == "inprogress" or resp == "errors":
-							callback(None, self.errorsList,**kwargs)
+							if callback is None:
+								return None
+							else:
+								callback(None, self.errorsList,**kwargs)
 						else:
-							callback(resp, None,**kwargs)
+							if callback is None:
+								return resp
+							else:
+								callback(resp, None,**kwargs)
 					except ValueError, e:
 						self.__createErrorObject(ErrorCode.INVALID_HOD_RESPONSE, "Response is not a json string.", response.text)
-						callback(None, self.errorsList,**kwargs)
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList,**kwargs)
 				else:
 					try:
 						jsonObj = json.loads(response.text)
 						jobID = self.__parseJobId(jsonObj)
 						if jobID == "errors":
-							callback(None, self.errorsList,**kwargs)
+							if callback is None:
+								return None
+							else:
+								callback(None, self.errorsList,**kwargs)
 						else:
-							callback(jobID, None,**kwargs)
+							if callback is None:
+								return jobID
+							else:
+								callback(jobID, None,**kwargs)
 					except ValueError, e:
 						self.__createErrorObject(ErrorCode.INVALID_HOD_RESPONSE, "Response is not a json string.", response.text)
-						callback(None, self.errorsList,**kwargs)
+						if callback is None:
+							return None
+						else:
+							callback(None, self.errorsList,**kwargs)
 		except requests.Timeout:
 			self.__createErrorObject(ErrorCode.TIMEOUT, "Request timeout")
-			callback(None, self.errorsList,**kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList,**kwargs)
 		except requests.HTTPError:
 			self.__createErrorObject(ErrorCode.HTTP_ERROR, "HTTP error")
-			callback(None, self.errorsList,**kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList,**kwargs)
 		except requests.ConnectionError:
 			self.__createErrorObject(ErrorCode.CONNECTION_ERROR, "Connection error")
-			callback(None, self.errorsList,**kwargs)
+			if callback is None:
+				return None
+			else:
+				callback(None, self.errorsList,**kwargs)
 
 	def __createErrorObject(self,code, reason, detail="", jobID=""):
 		self.errorsList.resetErrorList()

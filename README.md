@@ -6,6 +6,8 @@ HODClient for Python is a utility class, which helps you easily integrate your P
 
 Version V2.0 also supports bulk input (source inputs can be an array) where an HOD API is capable of doing so.
 
+Code your Python app with PyCharm or https://www.jetbrains.com/pycharm/download
+
 ----
 ## Integrate HODClient into Python project
 1. Download the HODClient library for Python.
@@ -60,22 +62,18 @@ hodClient = HODClient("your-apikey")
 
 * hodApp: a string to identify a Haven OnDemand API. E.g. "extractentities". Current supported APIs are listed in the HODApps class.
 * async: True | False. Specifies API call as Asynchronous or Synchronous.
-* callback: the name of a callback function, which the HODClient will call back and pass the response from server.
-* **kwargs (optional): a dictionary that holds any custom paramters. The parameter **kwargs will be sent back thru the provided callback function.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If callback is obmitted or is None, this function will return a response.
+* \*\*kwargs (optional): a dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
-* Response from the server will be returned via the provided callback function
+* If callback function is provided, the response from the server will be returned via the provided callback function
+* If the callback is omitted or is None, the response from the server will be returned from this function. If there is an error occurs, the response will be None and the get_last_error() function will return a list of errors.
 
 *Example code:*
 ```
 # Call the Entity Extraction API synchronously to find people, places and companies from CNN and BBC websites.
-params = dict()
-params["url"] = ["http://www.cnn.com","http://www.bbc.com"]
-params["entity_type"] = ["people_eng","places_eng","companies_eng"]
-    
-params["unique_entities"] = "true"
-    
-hodClient.get_request(params, HODApps.ENTITY_EXTRACTION, False, requestCompleted)
+
+#E.g. 1: Calling HODClient function with a callback function
 
 # callback function
 def requestCompleted(response, error, **kwargs):
@@ -103,6 +101,40 @@ def requestCompleted(response, error, **kwargs):
             else:
                 text += "People name: " + entity["normalized_text"] + "\n"
         print text
+
+params = dict()
+params["url"] = ["http://www.cnn.com","http://www.bbc.com"]
+params["entity_type"] = ["people_eng","places_eng","companies_eng"]
+    
+params["unique_entities"] = "true"
+    
+hodClient.get_request(params, HODApps.ENTITY_EXTRACTION, False, requestCompleted)
+
+
+#E.g. 2: Calling HODClient function without a callback function
+params = dict()
+params["url"] = ["http://www.cnn.com","http://www.bbc.com"]
+params["entity_type"] = ["people_eng","places_eng","companies_eng"]
+    
+params["unique_entities"] = "true"
+    
+response = hodClient.get_request(params, HODApps.ENTITY_EXTRACTION, False)
+
+if response is None:
+    error = hodClient.get_last_error()
+    for err in error.errors:
+        print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+else:
+    entities = response["entities"]
+    text = ""
+    for entity in entities:
+        if entity["type"] == "companies_eng":
+            text += "Company name: " + entity["normalized_text"] + "\n"
+        elif entity["type"] == "places_eng":
+            text += "Place name: " + entity["normalized_text"] + "\n"
+        else:
+            text += "People name: " + entity["normalized_text"] + "\n"
+    print text
 ```
 
 **Function post_request**
@@ -127,16 +159,19 @@ params["entity_type"] = ["people_eng","places_eng","companies_eng"]
 
 * hodApp: a string to identify an Haven OnDemand API. E.g. "ocrdocument". Current supported apps are listed in the HODApps class.
 * async: True | False. Specifies API call as Asynchronous or Synchronous.
-* callback: the name of a callback function, which the HODClient will call back and pass the response from server.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If callback is obmitted or is None, this function will return a response.
 * \*\*kwargs (optional): a dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
-* Response from the server will be returned via the provided $callback function
+* If callback function is provided, the response from the server will be returned via the provided callback function
+* If the callback is omitted or is None, the response from the server will be returned from this function. If there is an error occurs, the response will be None and the get_last_error() function will return a list of errors.
 
 *Example code:*
 
 ```
-# Call post_request function asynchronously.
+# Call the OCRDocument API asynchronously to scan text from an image.
+
+#E.g. 1: Calling HODClient function with a callback function
 
 # callback function
 def asyncRequestCompleted(jobID, error, **kwargs):
@@ -171,8 +206,32 @@ params = {}
 params["file"] = "testdata/review.jpg",
 params["mode"] = "document_photo"
 
-# Call the OCR Document API asynchronously to scan text from an image file.
 hodClient.post_request(params, HODApps.OCR_DOCUMENT, True, asyncRequestCompleted)
+
+
+#E.g. 2: Calling HODClient function without a callback function
+
+
+params = {}
+params["file"] = "testdata/review.jpg",
+params["mode"] = "document_photo"
+
+jobId = hodClient.post_request(params, HODApps.OCR_DOCUMENT, True)
+
+if jobId is None:
+    error = hodClient.get_last_error();
+    for err in error.errors:
+        print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+else:
+    response = hodClient.get_job_result(jobId)
+    if response is None:
+        for err in error.errors:
+            print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+    else:
+        texts = response["text_block"]
+        for text in texts:
+            print "Recognized text: " + text["text"]
+    
 ```    
 
 **Function get_job_result**
@@ -184,11 +243,12 @@ get_job_result(jobID, callback, **kwargs)
 
 *Parameter:*
 * jobID: the job ID returned from an Haven OnDemand API upon an asynchronous call.
-* callback: the name of a callback function, which the HODClient will call back and pass the response from server.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If callback is obmitted or is None, this function will return a response.
 * \*\*kwargs (optional): a dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
-* Response from the server will be returned via the provided callback function
+* If callback function is provided, the response from the server will be returned via the provided callback function
+* If the callback is omitted or is None, the response from the server will be returned from this function. If there is an error occurs, the response will be None and the get_last_error() function will return a list of errors.
 
 *Example code:*
 ``` 
@@ -225,10 +285,12 @@ get_job_status(jobID, callback, **kwargs)
 *Parameter:*
 * jobID: the job ID returned from an Haven OnDemand API upon an asynchronous call.
 * callback: the name of a callback function, which the HODClient will call back and pass the response from server.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If callback is obmitted or is None, this function will return a response.
 * \*\*kwargs (optional): a dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
-* Response from the server will be returned via the provided callback function
+* If callback function is provided, the response from the server will be returned via the provided callback function
+* If the callback is omitted or is None, the response from the server will be returned from this function. If there is an error occurs, the response will be None and the get_last_error() function will return a list of errors.
 
 *Example code:*
 ``` 
@@ -253,6 +315,25 @@ def requestCompleted(response, error, **kwargs):
         # walk thru the response
 
 hodClient.get_job_result(jobID, requestCompleted)
+```
+
+**Function get_last_error**
+```
+get_last_error()
+```
+*Description:*
+* Get the latest error list which describe the errors happen during an operation
+
+*Parameter:* None
+
+*Response:* 
+* An array of HODErrorObject
+
+*Example code:*
+```
+error = hodClient.get_last_error();
+for err in error.errors:
+    print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
 ```
 
 ## Define and implement callback functions
