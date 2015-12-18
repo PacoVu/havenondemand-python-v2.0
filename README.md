@@ -211,7 +211,6 @@ hodClient.post_request(params, HODApps.OCR_DOCUMENT, True, asyncRequestCompleted
 
 #E.g. 2: Calling HODClient function without a callback function
 
-
 params = {}
 params["file"] = "testdata/review.jpg",
 params["mode"] = "document_photo"
