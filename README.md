@@ -242,7 +242,7 @@ get_job_result(jobID, callback, **kwargs)
 
 *Parameter:*
 * jobID: the job ID returned from an Haven OnDemand API upon an asynchronous call.
-* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If callback is omitted or is None, this function will return a response.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If the callback is omitted or is None, this function will return a response.
 * \*\*kwargs (optional): a dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
@@ -273,8 +273,7 @@ get_job_status(jobID, callback, **kwargs)
 
 *Parameter:*
 * jobID: the job ID returned from an Haven OnDemand API upon an asynchronous call.
-* callback: the name of a callback function, which the HODClient will call back and pass the response from server.
-* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If callback is omitted or is None, this function will return a response.
+* callback: the name of a callback function, which the HODClient will call back and pass the response from server. If the callback is omitted or is None, this function will return a response.
 * \*\*kwargs (optional): a dictionary that holds any custom paramters. The parameter \*\*kwargs will be sent back thru the provided callback function.
 
 *Response:* 
