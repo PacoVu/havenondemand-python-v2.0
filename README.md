@@ -238,7 +238,7 @@ else:
 get_job_result(jobID, callback, **kwargs)
 ```
 *Description:*
-* Sends a request to Haven OnDemand to retrieve content identified by a job ID.
+* Sends a request to Haven OnDemand to retrieve content identified by a job ID. This function acts like a synchronous call, it waits until the result is ready and returns the response or times out for a long operation job.
 
 *Parameter:*
 * jobID: the job ID returned from an Haven OnDemand API upon an asynchronous call.
@@ -257,17 +257,7 @@ get_job_result(jobID, callback, **kwargs)
 def requestCompleted(response, error, **kwargs):
     if error != None:
         for err in error.errors:
-            if err.error == ErrorCode.QUEUED:
-                # wait for some time then call GetJobStatus or GetJobResult again with the same jobID from err.jobID
-                time.sleep(10)
-                hodClient.get_job_status(err.jobID, requestCompleted, **context)
-            elif err.error == ErrorCode.IN_PROGRESS:
-                # wait for some time then call GetJobStatus or GetJobResult again with the same jobID from err.jobID
-                print "task is in progress. Retry in 20 secs. jobID: " + err.jobID
-                time.sleep(20)
-                hodClient.get_job_status(err.jobID, requestCompleted, **context)
-            else:
-                resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+            resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
     elif response != None:
         # walk thru the response
 
@@ -293,7 +283,7 @@ get_job_status(jobID, callback, **kwargs)
 
 *Example code:*
 ``` 
-# Call get_job_result function to get content from Haven OnDemand server.
+# Call get_job_status function to get content from Haven OnDemand server.
 
 # callback function
 def requestCompleted(response, error, **kwargs):
@@ -313,7 +303,7 @@ def requestCompleted(response, error, **kwargs):
     elif response != None:
         # walk thru the response
 
-hodClient.get_job_result(jobID, requestCompleted)
+hodClient.get_job_status(jobID, requestCompleted)
 ```
 
 **Function get_last_error**
@@ -321,7 +311,7 @@ hodClient.get_job_result(jobID, requestCompleted)
 get_last_error()
 ```
 *Description:*
-* Get the latest error list which describe the errors happen during an operation
+* Get the latest error list which describe the errors happened during an operation
 
 *Parameter:* None
 

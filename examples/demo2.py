@@ -20,7 +20,7 @@ else:
 	if response is None:
 		error = hodClient.get_last_error();
 		for err in error.errors:
-			print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+			resp += "Error code: %d \nReason: %s \nDetails: %s\njobID: %s\n" % (err.error,err.reason, err.jobID)
 	else:
 		texts = response["text_block"]
 		resp = ""
@@ -36,7 +36,7 @@ else:
 			if pos.get('topic'):
 				resp += "Topic: " + pos["topic"] + "\n"
 			resp += "Score: " + "%f " % (pos["score"]) + "\n"
-			if pos.get('documentIndex'):
+			if 'documentIndex' in pos:
 				resp += "Doc: " + str(pos["documentIndex"]) + "\n"
 		negatives = response["negative"]
 		resp += "Negative:\n"
@@ -45,7 +45,7 @@ else:
 			if neg.get('topic'):
 				resp += "Topic: " + neg["topic"] + "\n"
 			resp += "Score: " + "%f " % (neg["score"]) + "\n"
-			if neg.get('documentIndex'):
+			if 'documentIndex' in neg:
 				resp += "Doc: " + str(neg["documentIndex"]) + "\n"
 		aggregate = response["aggregate"]
 		resp += "Aggregate:\n"

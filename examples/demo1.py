@@ -30,7 +30,7 @@ def requestCompleted(response, error, **context):
 				hodClient.get_job_status(err.jobID, requestCompleted, **context)
 				return
 			else:
-				resp += "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
+				resp += "Error code: %d \nReason: %s \nDetails: %s\njobID: %s\n" % (err.error,err.reason, err.jobID)
 	elif response is not None:
 		app = context["hodapp"]
 		if app == HODApps.RECOGNIZE_SPEECH:
@@ -59,7 +59,7 @@ def requestCompleted(response, error, **context):
 				if pos.get('topic'):
 					resp += "Topic: " + pos["topic"] + "\n"
 				resp += "Score: " + "%f " % (pos["score"]) + "\n"
-				if pos.get('documentIndex'):
+				if 'documentIndex' in pos:
 					resp += "Doc: " + str(pos["documentIndex"]) + "\n"
 			negatives = response["negative"]
 			resp += "Negative:\n"
@@ -68,7 +68,7 @@ def requestCompleted(response, error, **context):
 				if neg.get('topic'):
 					resp += "Topic: " + neg["topic"] + "\n"
 				resp += "Score: " + "%f " % (neg["score"]) + "\n"
-				if neg.get('documentIndex'):
+				if 'documentIndex' in neg:
 					resp += "Doc: " + str(neg["documentIndex"]) + "\n"
 			aggregate = response["aggregate"]
 			resp += "Aggregate:\n"
