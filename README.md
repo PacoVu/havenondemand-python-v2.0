@@ -4,7 +4,7 @@
 ## Overview
 HODClient for Python is a utility class, which helps you easily integrate your Python project with HPE Haven OnDemand Services.
 
-Version V2.0 supports also asynchronous call which return server response via a callback function.
+Version V2.0 also supports asynchronous call which returns server response via a callback function.
 
 Code your Python app with PyCharm. Get it from https://www.jetbrains.com/pycharm/download
 
