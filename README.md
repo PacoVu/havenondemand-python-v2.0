@@ -4,9 +4,9 @@
 ## Overview
 HODClient for Python is a utility class, which helps you easily integrate your Python project with HPE Haven OnDemand Services.
 
-Version V2.0 also supports bulk input (source inputs can be an array) where an HOD API is capable of doing so.
+Version V2.0 supports also asynchronous call which return server response via a callback function.
 
-Code your Python app with PyCharm or https://www.jetbrains.com/pycharm/download
+Code your Python app with PyCharm. Get it from https://www.jetbrains.com/pycharm/download
 
 ----
 ## Integrate HODClient into Python project
