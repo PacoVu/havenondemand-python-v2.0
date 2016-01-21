@@ -215,14 +215,14 @@ params = {}
 params["file"] = "testdata/review.jpg",
 params["mode"] = "document_photo"
 
-jobId = hodClient.post_request(params, HODApps.OCR_DOCUMENT, True)
+response = hodClient.post_request(params, HODApps.OCR_DOCUMENT, True)
 
-if jobId is None:
+if response is None:
     error = hodClient.get_last_error();
     for err in error.errors:
         print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
 else:
-    response = hodClient.get_job_result(jobId)
+    response = hodClient.get_job_result(response['jobID'])
     if response is None:
         for err in error.errors:
             print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)

@@ -9,14 +9,14 @@ paramArr = {}
 paramArr["file"] = "testdata/review.jpg"
 paramArr["mode"] = "document_photo"
 
-jobId = hodClient.post_request(paramArr, hodApp, async=True)
+response = hodClient.post_request(paramArr, hodApp, async=True)
 
-if jobId is None:
+if response is None:
 	error = hodClient.get_last_error();
 	for err in error.errors:
 		print "Error code: %d \nReason: %s \nDetails: %s\n" % (err.error,err.reason, err.detail)
 else:
-	response = hodClient.get_job_result(jobId)
+	response = hodClient.get_job_result(response['jobID'])
 	if response is None:
 		error = hodClient.get_last_error();
 		for err in error.errors:

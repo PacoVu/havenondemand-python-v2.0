@@ -116,6 +116,7 @@ class HODClient(object):
 		queryStr = "%s%s?apikey=%s" % (self.hodJobStatus, jobId, self.apiKey)
 		try:
 			response = requests.get(queryStr, verify=False, timeout=600)
+			print response.json()
 			if response.status_code == 429:
 				print "Throttled, Sleeping 2 seconds"
 				time.sleep(2)
@@ -266,7 +267,7 @@ class HODClient(object):
 								callback(None, self.errorsList,**kwargs)
 						else:
 							if callback is None:
-								return jobID
+								return jsonObj #jobID
 							else:
 								callback(jobID, None,**kwargs)
 					except ValueError, e:
@@ -323,6 +324,7 @@ class HODClient(object):
 				self.GetRequest(params,hodApp,async,callback,**kwargs)
 			elif response.status_code != 200:
 				try:
+					print response.text
 					jsonObj = json.loads(response.text)
 					self.__parseHODResponse(jsonObj)
 					if callback is None:
@@ -367,7 +369,7 @@ class HODClient(object):
 								callback(None, self.errorsList,**kwargs)
 						else:
 							if callback is None:
-								return jobID
+								return jsonObj #jobID
 							else:
 								callback(jobID, None,**kwargs)
 					except ValueError, e:
@@ -503,7 +505,7 @@ class HODApps:
 	QUERY_TEXT_INDEX = "querytextindex"
 	RETRIEVE_INDEX_FIELDS = "retrieveindexfields"
 
-	AUTO_COMPLETE = "autocomplete";
+	AUTO_COMPLETE = "autocomplete"
 	CLASSIFY_DOCUMENT = "classifydocument"
 	EXTRACT_CONCEPTS = "extractconcepts"
 	CATEGORIZE_DOCUMENT = "categorizedocument"
